@@ -482,6 +482,75 @@ public void changeTeam(Team team) {
 - (지금까지 배운 값타입들을 실전예제5 코드에 적용하는 실습)
 - 임베디드타입의 equals 를 자동 구현할 때, 필드 직접접근보다 getter 를 사용하는게 좋다 → 프록시가 getter 를 사용하기때문
 
+## **섹션 10. 객체지향 쿼리 언어1 - 기본 문법**
+
+### 소개
+
+- JPA 는 다양한 쿼리 작성 방법들을 지원함 → JPQL, JPA Criteria, QueryDSL, Native SQL, JDBCTemplate, MyBatis ..
+- JPQL
+    - 테이블은 매핑만 하는거지 우리는 엔티티 객체를 중심으로 개발을 해야하고, 검색을 할때도 테이블이 아닌 엔티티 객체를 대상으로 쿼리를 날릴 수 있어야함
+    - JPA 는 SQL 을 추상화한 JPQL 이라는 객체 지향 쿼리 언어를 제공하며, SQL 과 유사함
+    - JPQL 은 객체를 대상으로 쿼리를 하는것이고, SQL 은 테이블을 대상으로 쿼리를 한다는 점이 다름
+    - JPQL 도 단순히 그냥 문자열이라서 “동적쿼리” 작성하기가 너무 힘듦
+- Criteria (자바 표준에서 지원)
+    - (실무에서 강사님이 써봤는데 너무 복잡해서 잘 안쓰게됨) → QueryDSL 을 추천
+    - 문자대신 자바 코드로 JPQL 을 만들 수 있고, JPA 공식임 → (JPQL 빌더 느낌)
+- [QueryDSL](http://querydsl.com/)
+    - 딱 읽어보기만 해도 SQL 이랑 문법이 똑같음
+    - Criteria 처럼 JPQL 빌더 역할이며, 자바코드로 JPQL 작성가능
+    - QClass 를 사용하여 컴파일 시점에 문법오류를 찾을 수 있음
+    - (강사님 피셜 복잡한쿼리가 나가야하는 대부분의 상황에 그냥 QueryDSL 을 깔고감)
+    - 아무리 QueryDSL 을 쓰더라도 JPQL 을 알고 써야 잘 쓸 수 있음
+- Native SQL
+    - 특정 데이터베이스만 종속적인 기능이나 hint 를 사용할 수 있도록 JPA 에서 지원
+    - `em.createNativeQuery( .. )` 로 작성 가능
+- SpringJdbcTemplate 지원
+    - (강사님은 Native 를 직접쓰기보다 그냥 JDBC Template 를 사용)
+    - 주의) JPA 를 사용할 때는 flush 를 관리 해주지만, db connection 을 가져와서 executeQuery 할 때는 강제로 `em.flush()` 를 사용해줘야함 (JPA 를 우회해서 SQL을 실행한다면 그 직전에 수동으로 플러쉬)
+    - 플러시는 네이티브쿼리랑 commit 할때 자동으로 날아감 (기존 내용)
+- JPQL 만 잘한다면 그냥 대부분 다 잘 할 수 있음 → 95% 정도는 JPQL 과 QueryDSL 로 대부분 해결 가능
+
+### 기본 문법과 쿼리 API
+
+- [JPQL](https://en.wikibooks.org/wiki/Java_Persistence/JPQL) == Java Persistence Query Language
+- (JPQL 기본적인 사용법 실습 내용)
+- JPQL 작성시에 내용에 대소문자를 구분함 (객체의 내용과 똑같이)
+- 반환 타입이 명확하면 `TypeQuery`, 명확하지 않으면 `Query` 를 지원한다
+- 결과는 `getResultList()` 를 쓰면 컬렉션(비면 빈 컬렉션이)이, `getSingleResult()` 를 쓰면 그냥 그 객체(결과가 없거나 여러개면 에러남)가 나옴
+    - `getSingleResult()` 는 나중에 Spring Data JPA 를 쓰면 에러가 안나고 그냥 null 이나 optional 이 던지도록 확장되어있음
+- 파라메터 바인딩시에 “위치”와 “이름” 기준으로 할 수 있는데, “이름”으로 하는게 덜 헷갈리고 휴먼에러 발생 가능성도 적음
+
+### 프로젝션(SELECT)
+
+- 프로젝션 == select 절에 조회할 대상을 지정하는 것을 말함
+- 원래 DB 는 스칼라 타입만 넣을 수 있는데 여기선 엔티티, 임베디드타입도 모두 사용 가능
+- SELECT 에서 엔티티프로젝션(엔티티를 가져오면) 조회된 모든 엔티티가 영속성컨텍스트에서 관리됨
+- (경로표현식에서 설명 하겠지만) JPQL 에선 자동으로 생성된 SQL JOIN 을 쓰기(묵시적으로 사용)보다 명시적으로 코드를 작성해주는게 좋다 (묵시적으로 하면 쿼리가 어떻게 나갈지 예측이 힘들고, 튜닝할때 추측으로 해야하니까)
+- 임베디드값타입의 한계) 그냥 임베디드타입으로 호출이 불가능하고 (소속되어있기때문에) 소속을 알려줘야함
+- 스칼라 타입 프로젝션은 그냥 필드를 적어주면 됨
+- `SELECT DISTINCT ~` 로 중복을 제거할 수 있다
+- 여러 타입을 한번에 가져올 경우는?
+    - TypeQuery 말고 Query 로 받으면 됨 그럼 내부에 `Object` 배열로 값이 넘어옴
+    - 제네릭으로 `List<Ovject[]> resultList = em.createQuery(..).getResultList();` 하면됨
+    - (제일 깔끔하게) new 명령어로 DTO 로 바로 조회 가능 (내가 DTO 프로젝션이라 불렀던 것) →  type 을 DTO 로 주고 `em.createQuery("select new jpql.aDTO from ~", aDTO).getResultList();` 로 가져올 수 있음 → 순서와 타입이 일치해야 함
+
+### 페이징
+
+- 오라클 데이터베이스 같은건 페이징이 거지같은데, JPA 는 `setFirstResult` (시작위치) 와 `setMaxResults` (조회 데이터 수) 로 잘 추상화 되어있음
+- `order by` 로 sort 까지 넣어야 페이징이 완벽히 잘되는지 확인되는거지 (순차적으로)
+- 미세팁) Entity `toString` 만들땐 연관관계 무한루프 주의
+- 페이징도 각 데이터베이스의 방언에 맞춰서 만들어줌
+
+```java
+String jpal = "select m from Member m order by m.name desc";
+List<Member> resultList = em.createQuery(jpql, Member.class)
+	.setFirstResult(10)
+	.setMaxResults(20)
+	.getResultList();
+```
+
+### 
+
 # 📋 메모
 
 - 스프링부트에서 하이버네이트를 사용하면 Entity 를 생성할때 칼럼의 필드명을 카멜케이스 → 스네이크 케이스로 자동으로 바꿔준다
