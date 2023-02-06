@@ -549,7 +549,31 @@ List<Member> resultList = em.createQuery(jpql, Member.class)
 	.getResultList();
 ```
 
-### 
+### 조인
+
+- 조인은 SQL 조인이랑 실행은 똑같은데 객체 스타일로 조인 문법이 나감
+
+```java
+// List<Member> result = em.createQuery("select m from Member m left outer join m.team t", Member.class) // outer 는 생략 가능
+List<Member> result = em.createQuery("select m from Member m inner join m.team t", Member.class) // inner 는 생략 가능
+	.getResultList();
+```
+
+- JPA 2.1 부터 on 절을 활용하여 조인 대상을 필터링하고
+
+```java
+String jpql = "select m, t from Member m left join m.team t on t.name = 'a'"
+```
+
+- (하이버네이트 5.1부터) 연관관계가 없는 엔티티 외부 조인을 지원한다 (내부조인은 원래 됐음)
+
+```java
+String jpql = "select m, t from Member m left join Team t on m.username = t.name" // left 빼면 당연히 내부조인 
+```
+
+### 서브 쿼리
+
+- 
 
 # 📋 메모
 
