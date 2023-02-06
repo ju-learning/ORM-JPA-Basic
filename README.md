@@ -314,6 +314,28 @@ public void changeTeam(Team team) {
     - 개별테이블 전략: 테이블을 각각만들고 똑같은 필드를 그냥 중복시킴 → 3의 테이블
     - 여기서 어떤 방법을 선택하던 JPA 로 구현 가능함
 - 상속으로 해결할 시 JPA 의 기본전략은 “단일테이블전략” 임
+
+```java
+@Entity 
+@Inheritance(strategy = InheritanceType.JOINED) // JOINED, SINGLE_TABLE, TABLE_PER_CLASS
+@DiscriminatorColumn
+public class Item { // TABLE_PER_CLASS 시에는 abstract class 로 선언해서 Entity 생성이 안되게 
+	...
+}
+
+//
+@Entity 
+//@DiscriminatorValue("B")
+public class Book extends Item {
+	...
+}
+
+@Entity
+public class Album extends Item {
+	...
+}
+```
+
 - 조인 전략 (사용법은`@Inheritance(strategy=InheritanceType.JOINED)` 로 선언하면 됨)
     - `@DiscriminatorColumn` 을 넣어주는게 좋음 → DTYPE 없이 상위테이블만 보면 얘가 뭐에 관련된 데이턴지 알 수 없기때문에
     - JPA 스펙상 조인전략도 DTYPE 이 필수인데, 하이버네이트 구현체는 필수는 아닌듯 (선언 안하면 안만들어짐)
