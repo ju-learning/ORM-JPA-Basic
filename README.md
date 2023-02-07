@@ -368,6 +368,19 @@ public class Album extends Item {
 - 이건 엔티티도 아니고, 절때 상속관계 매핑이 아님 → `@MappedSuperclass` 는 직접 조회 (em.find) 가 안됨
 - 직접 생성할일이 없으므로 추상클래스로 사용하시길 권장
 
+```java
+@EntityListeners(AuditingEntityListener.class)
+@MappedSuperclass
+public abstract class BaseEntity {
+
+    private LocalDateTime createdAt;
+
+    @LastModifiedDate
+    private LocalDateTime updatedAt;
+    
+}
+```
+
 ### 실전 예제 4 - 상속관계 매핑
 
 - (기존의 실전예제 4에 Item 상속관계와 MappedSuperclass 로 생성일자 데이터 등을 추가)
