@@ -426,6 +426,12 @@ public abstract class BaseEntity {
 
 ### 영속성 전이(CASCADE)와 고아 객체
 
+```java
+// 예시 
+@OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval =true)
+private List<Child> childList = new ArrayList<>();
+```
+
 - 영속성 전이 (CASCADE) 는 연관관계와 전~혀 상관이없음
 - 부모를 저장할때 자식도 함께 저장하고 싶거나 할 때 (특정 엔티티를 영속상태로 만들때 연관 엔티티를 함께 영속상태로 만들기위해) 사용 (모두 `em.persist` 가 나감)
 - 양방향 편의 메서드 만들때 기존 값이 있나 확인하고 빼주는게 나중에 코드 (복잡하지만 사용)
