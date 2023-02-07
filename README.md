@@ -595,6 +595,32 @@ String jpql = "select m, t from Member m left join Team t on m.username = t.name
 
 ### 서브 쿼리
 
+- 우리가 알고있는 SQL 서브쿼리와 거의 동일
+- JPA 서브쿼리의 한계: 원래 JPA 표준에서는 WHERE 과 HAVING 에서만 서브쿼리가 가능 → 하이버네이트 구현체는 SELECT 도 가능
+- FROM 절에서의 서브쿼리(인라인뷰)는 현재 JPQL 로 아예 불가능 → JOIN 으로 풀어서 해결해야함 → 여기까지 해도 안되면 그냥 네이티브로 해결 or 애플리케이션레이어에서 해결 (그냥 여러번의 쿼리 날림)
+
+### JPQL 타입 표현과 기타식
+
+- 문자와 숫자를 어떻게 JPQL 에서 표현하는가? 문자는 그냥 `'` 으로
+- 숫자는 그냥 10L, 10D, 10F 다 표현 가능
+- Boolean 은 TRUE, FALSE
+- ENUM 을 바로 쓰고싶은경우는 패키지명을 다 입력해줘야함
+- 다형성을 이용한 엔티티 타입: TYPE(m) = Member → `"select i from Item i where type(i) = Book"`
+- 앵간한 표준 SQL 은 다 지원함
+
+### 조건식(CASE 등등)
+
+- (CASE 식, coalesce, nullif 등 문법 실습) → 이런 대부분의 표준함수는 디비 엔진과 상관없이 동작함
+
+### JPQL 함수
+
+- JPQL 의 표준함수 (디비와 상관없는), 사용자 정의함수를 DB 방언에 추가해서 사용 → 기본적으로 하이버네이트 내부에 `registerFunction` 으로 대부분 미리 등록되어있음
+- (사용자 정의 함수 등록하는 방법 알려주심)
+
+## **섹션 11. 객체지향 쿼리 언어2 - 중급 문법**
+
+### 경로 표현식
+
 - 
 
 # 📋 메모
@@ -605,7 +631,7 @@ String jpql = "select m, t from Member m left join Team t on m.username = t.name
 
 # 💡 팁 (단축키 등)
 
-- 
+- tip) JQPL 문자열이 intellij 에서 문법오류로 반환할 경우 옵션+엔터 했을때 나오는창에서 `Inject language or reference` 에 Hibernate QL 로 지정할 수 있음
 
 # 🔗 레퍼런스
 
