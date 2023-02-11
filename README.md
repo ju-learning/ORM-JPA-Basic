@@ -640,7 +640,45 @@ String jpql = "select m, t from Member m left join Team t on m.username = t.name
 
 ### 경로 표현식
 
-- 
+### 페치 조인 1 - 기본
+
+### 페치 조인 2 - 한계
+
+### 다형성 쿼리
+
+- (크게 중요한건 아님)
+- 예를들어서 다형성을 활용하여 엔티티를 설계했을 때, 조회 대상을 특정 자식으로 한정 할 수 있음 → Item 중에 Book, Album 을 조회
+
+```java
+// JPQL
+select i from Item i where type(i) in (Book, album)
+// 여기서 type(i) 부분이 실제 SQL 쿼리의 DTYPE 으로 캐스팅됨
+```
+
+- 자바의 타입 캐스팅과 유사한 `TREAT` 가 있음 (JPA 2.1)
+
+```java
+// JPQL
+"select i from Item i where treat(i as Book).auther = 'kim'"
+-> (싱글테이블쿼리) select i.* from Item i where i.DTYPE = 'B' and i.auther = 'Kim'
+```
+
+### 엔티티 직접 사용
+
+- 엔티티를 직접사용하면 SQL 에서 해당 엔티티의 기본키를 사용함
+
+```java
+// JPQL
+"select count(m.id) from Member m" 대신 "select count(m) from Member m" 이렇게 해도 동일한 SQL이 실행됨
+-> select count(m.id) as cnt from Member m
+// where 문에 "where m.id = :member" 로 써도 똑같이 m.id=? 으로 나감
+```
+
+- 엔티티 직접사용 외래키 값 e.g. `where m.team = :team` 이렇게 써도 SQL 은 `where m.team_id = ?` 으로 나감
+
+### Named 쿼리
+
+### 벌크 연산
 
 # 📋 메모
 
