@@ -223,6 +223,13 @@ public void changeTeam(Team team) {
 }
 ```
 
+```java
+public void addMemeber(Member member) {
+	member.setTeam = team; // setter 필요 
+	this.memberList.add(this);
+}
+```
+
 - member 를 기준으로 team 을 넣을지, team 을 기준으로 member 를 넣을지 편의메서드를 작성할곳을 정해주면 됨 (한쪽에만 작성해주는게 좋음) → 어플리케이션 작성하면서 어디 있으면 되겠다 싶은곳에 넣으면됨
 - 양방향 매핑시에 무한루프를 주의 (toString, lombok, JSON 생성 라이브러리 사용시)
     - Lombok 에서 toString 은 지양해라
